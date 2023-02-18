@@ -8,7 +8,7 @@ public class Gmail extends Email {
     int inboxCapacity; //maximum number of mails inbox can store
     //Inbox: Stores mails. Each mail has date (Date), sender (String), message (String). It is guaranteed that message is distinct for all mails.
     //Trash: Stores mails. Each mail has date (Date), sender (String), message (String)
-    private HashMap<String,Message > hminbox;
+    private HashMap<String,Address > hminbox;
     //private HashMap<String,Message > hmtrash;
     private Deque<String> inbox;
     private Stack<String> trash;
@@ -28,7 +28,12 @@ public class Gmail extends Email {
         // It is guaranteed that:
         // 1. Each mail in the inbox is distinct.
         // 2. The mails are received in non-decreasing order. This means that the date of a new mail is greater than equal to the dates of mails received already.
-            hminbox.put(message, new Message(date,sender));
+            if(inbox.size()>getInboxSize()){
+                trash.push(findOldestMessage());
+                hminbox.remove(findOldestMessage());
+                inbox.removeLast();
+            }
+            hminbox.put(message, new Address(date,sender));
             inbox.addFirst(message);
     }
 
@@ -37,10 +42,10 @@ public class Gmail extends Email {
         // If the given message is found in any mail in the inbox, move the mail to trash, else do nothing
          if(hminbox.containsKey(message)){
              temp = new Stack<>();
-             while(inbox.size()>0 && inbox.peek().equals(message)){
+             while(inbox.size()>0 && !inbox.peekFirst().equals(message)){
                  temp.push(inbox.removeFirst());
              }
-             String copy = inbox.removeLast();
+             String copy = inbox.removeFirst();
             // hmtrash.put(copy,hminbox.get(copy));
              hminbox.remove(copy);
              trash.push(copy);
@@ -71,7 +76,7 @@ public class Gmail extends Email {
         for (Iterator itr = inbox.iterator();
              itr.hasNext();) {
            String s = (String)itr.next();
-           Message m = hminbox.get(s);
+           Address m = hminbox.get(s);
            if(m.date.compareTo(start)>=0 && m.date.compareTo(end)<=0){
                count++;
            }
@@ -100,10 +105,10 @@ public class Gmail extends Email {
         // Return the maximum number of mails that can be stored in the inbox
         return this.inboxCapacity;
     }
-    class Message{
+    class Address{
         String sender;
         Date date;
-        Message(Date date,String sender ){
+       Address(Date date,String sender ){
             this.date = date;
             this.sender = sender;
         }
