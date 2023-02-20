@@ -27,17 +27,20 @@ public class Workspace extends Gmail{
         // 2. If you want to attend a meeting, you must join it at its start time and leave at end time.
         // Example: If a meeting ends at 10:00 am, you cannot attend another meeting starting at 10:00 am;
         ArrayList<Meeting> m = new ArrayList<>();
-
         LocalTime time_limit ;
-        mycomparator mc = new mycomparator();
         // Sorting of meeting according to
         // their finish time.
-        Collections.sort(calendar,mc);
+
+        // sorting using compartor class and without (compartor or comparable class)
+      //  mycomparator mc = new mycomparator();
+      //  Collections.sort(calendar,mc);
+        Collections.sort(calendar,(m1,m2)->{
+            return m1.getEndTime().compareTo(m2.getEndTime());
+        });
 
         // Initially select first meeting.
         Meeting meet = calendar.get(0);
         m.add(meet);
-
         // time_limit to check whether new
         // meeting can be conducted or not.
         time_limit = calendar.get(0).getEndTime();
@@ -58,15 +61,15 @@ public class Workspace extends Gmail{
        return m.size();
     }
     class mycomparator implements Comparator<Meeting> {
-        @Override public int compare(Meeting o1, Meeting o2)
+        @Override public int compare(Meeting m1, Meeting m2)
         {
-            if (o1.getEndTime().compareTo(o2.getEndTime())<0) {
+            if (m1.getEndTime().compareTo(m2.getEndTime())<0) {
 
                 // Return -1 if second object is
                 // bigger than first
                 return -1;
             }
-            else if (o1.getEndTime().compareTo(o2.getEndTime())>0) {
+            else if (m1.getEndTime().compareTo(m2.getEndTime())>0) {
 
                 // Return 1 if second object is
                 // smaller than first
